@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,4 +5,91 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model assistance {
+  assist     String
+  id         Int       @id @default(autoincrement())
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  user_id    String
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  users      users     @relation(fields: [user_id], references: [id], onUpdate: Restrict)
+}
+
+model notes {
+  id           Int      @id @default(autoincrement())
+  note         String
+  is_completed Boolean  @default(false)
+  is_public    Boolean  @default(false)
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  user_id      String
+  users        users    @relation(fields: [user_id], references: [id], onUpdate: Restrict)
+}
+
+model pairs {
+  project    String
+  id         Int       @id(map: "pairing_pkey") @default(autoincrement())
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  user_id    String?
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  users      users?    @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict)
+}
+
+model polls {
+  title       String
+  user_id     String
+  id          Int       @id @unique @default(autoincrement())
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime? @default(now()) @db.Timestamptz(6)
+  options     Json
+  description String?
+  users       users     @relation(fields: [user_id], references: [id], onUpdate: Restrict)
+}
+
+model session_activity {
+  name       String   @unique
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  typing     Boolean  @default(false)
+}
+
+model sessions {
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  token        String
+  id           String    @id @default(dbgenerated("public.gen_random_uuid()")) @db.Uuid
+  user_id      String
+  active       Boolean   @default(true)
+  content      String?
+  status       String?
+  published_at DateTime? @db.Timestamptz(6)
+  dev_mode     Boolean?  @default(false)
+  users        users     @relation(fields: [user_id], references: [id], onUpdate: Restrict)
+}
+
+model shares {
+  sharing        String
+  user_id        String
+  id             Int       @id @default(autoincrement())
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime? @default(now()) @db.Timestamptz(6)
+  contributor    String?
+  message_id     BigInt?
+  created_at_day DateTime? @default(now()) @db.Date
+  users          users     @relation(fields: [user_id], references: [id], onUpdate: Restrict)
+
+  @@unique([sharing, created_at_day], map: "unique_shares_per_day")
+}
+
+model users {
+  id         String       @id
+  name       String
+  created_at DateTime     @default(now()) @db.Timestamptz(6)
+  last_seen  DateTime?    @db.Timestamptz(6)
+  assistance assistance[]
+  notes      notes[]
+  pairs      pairs[]
+  polls      polls[]
+  sessions   sessions[]
+  shares     shares[]
 }
