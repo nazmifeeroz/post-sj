@@ -15,7 +15,11 @@ export async function getStaticProps() {
     })) as shares
 
     const { created_at, updated_at, ...rest } = response
-    data = rest
+    data = {
+      ...rest,
+      created_at: created_at && new Date(created_at).toString(),
+      updated_at: updated_at && new Date(updated_at).toString(),
+    }
   }
 
   return {
