@@ -1,5 +1,5 @@
 {
-  "name": "nextjs-ts-template",
+  "name": "sj-alumni",
   "private": true,
   "scripts": {
     "dev": "next dev",
