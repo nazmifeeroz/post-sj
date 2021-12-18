@@ -171,16 +171,6 @@ interface HomeProps {
 const Home: NextPage<HomeProps> = (props) => {
   const data = React.useMemo(() => props.shares, [props.shares])
 
-  //   {
-  //     "": "https://chrisseaton.com/truffleruby/ruby-stm/",
-  //     "user_id": "auth0|5d5328f914af150d440980d8",
-  //     "id": 2603,
-  //     "": "Thu Oct 29 2020 10:04:11 GMT+0800 (Singapore Standard Time)",
-  //     "updated_at": "Thu Oct 29 2020 10:04:11 GMT+0800 (Singapore Standard Time)",
-  //     "": "Graf",
-  //     "message_id": null,
-  //     "created_at_day": "Thu Oct 29 2020 08:00:00 GMT+0800 (Singapore Standard Time)"
-  // }
   const columns = React.useMemo(
     () => [
       {
@@ -212,13 +202,20 @@ export async function getStaticProps() {
   if (prisma) {
     const response = (await prisma.shares.findMany()) as shares[]
 
-    data = response.map((re) => ({
-      ...re,
-      created_at: re.created_at && new Date(re.created_at).toString(),
-      updated_at: re.updated_at && new Date(re.updated_at).toString(),
-      created_at_day:
-        re.created_at_day && new Date(re.created_at_day).toString(),
-    }))
+    data = response.map((re) => {
+      const parsedDate =
+        re.created_at && new Date(re.created_at).toLocaleDateString()
+      const parsedTime =
+        re.created_at && new Date(re.created_at).toLocaleTimeString()
+
+      return {
+        ...re,
+        created_at: `${parsedDate} ${parsedTime}`,
+        updated_at: re.updated_at && new Date(re.updated_at).toString(),
+        created_at_day:
+          re.created_at_day && new Date(re.created_at_day).toString(),
+      }
+    })
   }
 
   return {
