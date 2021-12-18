@@ -142,20 +142,21 @@ const DataTable: React.FC<TypedTableProps> = ({ columns, data }) => {
             />
           </InputGroup>
           <Box ml="2" w="150px">
-            <Select
-              aria-label="page size"
-              size="sm"
-              value={pageSize}
-              onChange={(e) => {
-                setPageSize(Number(e.target.value))
-              }}
-            >
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <option key={pageSize} value={pageSize}>
-                  Show {pageSize}
-                </option>
-              ))}
-            </Select>
+            <label>
+              <Select
+                size="sm"
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value))
+                }}
+              >
+                {[10, 20, 30, 40, 50].map((pageSize) => (
+                  <option key={pageSize} value={pageSize}>
+                    Show {pageSize}
+                  </option>
+                ))}
+              </Select>
+            </label>
           </Box>
         </Box>
       </Flex>
