@@ -200,7 +200,11 @@ export async function getStaticProps() {
   let data = null
 
   if (prisma) {
-    const response = (await prisma.shares.findMany()) as shares[]
+    const response = (await prisma.shares.findMany({
+      orderBy: {
+        created_at: 'desc',
+      },
+    })) as shares[]
 
     data = response.map((re) => {
       const parsedDate =
