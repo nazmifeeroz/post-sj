@@ -1,8 +1,34 @@
 import React from 'react'
 import prisma from 'lib/prisma'
 import type { NextPage } from 'next'
-import { Table, Thead, Tbody, Tr, Th, Td, chakra } from '@chakra-ui/react'
-import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons'
+import {
+  Container,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  chakra,
+  ButtonGroup,
+  Button,
+  Box,
+  IconButton,
+  Input,
+  Select,
+  Flex,
+  Spacer,
+  InputGroup,
+  InputLeftAddon,
+} from '@chakra-ui/react'
+import {
+  ArrowBackIcon,
+  ArrowForwardIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  TriangleDownIcon,
+  TriangleUpIcon,
+} from '@chakra-ui/icons'
 import { shares } from '@prisma/client'
 import { usePagination, useTable, useSortBy, Column } from 'react-table'
 
@@ -31,8 +57,6 @@ const DataTable: React.FC<TypedTableProps> = ({ columns, data }) => {
     useSortBy,
     usePagination
   )
-
-  // const firstPageRows = page.slice(0, 20)
 
   return (
     <>
@@ -75,44 +99,66 @@ const DataTable: React.FC<TypedTableProps> = ({ columns, data }) => {
           })}
         </Tbody>
       </Table>
-      <div className="pagination">
-        <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-          {'<<'}
-        </button>{' '}
-        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-          {'<'}
-        </button>{' '}
-        <button onClick={() => nextPage()} disabled={!canNextPage}>
-          {'>'}
-        </button>{' '}
-        <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-          {'>>'}
-        </button>{' '}
-        <span>
-          | Go to page:{' '}
-          <input
-            type="number"
-            defaultValue={pageIndex + 1}
-            onChange={(e) => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0
-              gotoPage(page)
-            }}
-            style={{ width: '100px' }}
-          />
-        </span>{' '}
-        <select
-          value={pageSize}
-          onChange={(e) => {
-            setPageSize(Number(e.target.value))
-          }}
-        >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Flex justifyContent="space-between" mt="4">
+        <Box>
+          <ButtonGroup size="sm">
+            <IconButton
+              onClick={() => gotoPage(0)}
+              disabled={!canPreviousPage}
+              aria-label="first page"
+              icon={<ArrowLeftIcon />}
+            />
+            <IconButton
+              onClick={() => previousPage()}
+              disabled={!canPreviousPage}
+              aria-label="previous"
+              icon={<ArrowBackIcon />}
+            />
+            <IconButton
+              onClick={() => nextPage()}
+              disabled={!canNextPage}
+              aria-label="next"
+              icon={<ArrowForwardIcon />}
+            />
+            <IconButton
+              onClick={() => gotoPage(pageCount - 1)}
+              disabled={!canNextPage}
+              aria-label="last page"
+              icon={<ArrowRightIcon />}
+            />
+          </ButtonGroup>
+        </Box>
+        <Spacer />
+        <Box display="flex">
+          <InputGroup w="200px" size="sm">
+            <InputLeftAddon>Go to page:</InputLeftAddon>
+            <Input
+              type="number"
+              defaultValue={pageIndex + 1}
+              onChange={(e) => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0
+                gotoPage(page)
+              }}
+            />
+          </InputGroup>
+          <Box ml="2" w="150px">
+            <Select
+              aria-label="page size"
+              size="sm"
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value))
+              }}
+            >
+              {[10, 20, 30, 40, 50].map((pageSize) => (
+                <option key={pageSize} value={pageSize}>
+                  Show {pageSize}
+                </option>
+              ))}
+            </Select>
+          </Box>
+        </Box>
+      </Flex>
     </>
   )
 }
@@ -153,9 +199,9 @@ const Home: NextPage<HomeProps> = (props) => {
   )
 
   return (
-    <div>
+    <Container maxW="container.xl" mb="5">
       <DataTable columns={columns} data={data} />
-    </div>
+    </Container>
   )
 }
 
