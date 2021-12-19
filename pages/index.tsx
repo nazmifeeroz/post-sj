@@ -11,7 +11,6 @@ import {
   Td,
   chakra,
   ButtonGroup,
-  Button,
   Box,
   IconButton,
   Input,
@@ -20,6 +19,7 @@ import {
   Spacer,
   InputGroup,
   InputLeftAddon,
+  SlideFade,
 } from '@chakra-ui/react'
 import {
   ArrowBackIcon,
@@ -29,15 +29,25 @@ import {
   TriangleDownIcon,
   TriangleUpIcon,
 } from '@chakra-ui/icons'
-import { shares } from '@prisma/client'
+import { Prisma, PrismaPromise, shares } from '@prisma/client'
 import { usePagination, useTable, useSortBy, Column } from 'react-table'
+
+type PaginationOptions = {
+  initialPageSize: number
+  pageCount: number
+}
 
 interface TypedTableProps {
   columns: Array<Column<object>>
   data: Array<object>
+  paginationOptions: PaginationOptions
 }
 
-const DataTable: React.FC<TypedTableProps> = ({ columns, data }) => {
+const DataTable: React.FC<TypedTableProps> = ({
+  columns,
+  data,
+  paginationOptions,
+}) => {
   const {
     gotoPage,
     canPreviousPage,
@@ -53,13 +63,22 @@ const DataTable: React.FC<TypedTableProps> = ({ columns, data }) => {
     prepareRow,
     state: { pageIndex, pageSize },
   } = useTable(
-    { columns, data, initialState: { pageIndex: 0 } },
+    {
+      columns,
+      data,
+      initialState: {
+        pageIndex: 0,
+        pageSize: paginationOptions.initialPageSize,
+      },
+      manualPagination: true,
+      pageCount: paginationOptions.pageCount,
+    },
     useSortBy,
     usePagination
   )
 
   return (
-    <>
+    <SlideFade in={true} offsetY="60px">
       <Table {...getTableProps()} size="sm">
         <Thead>
           {headerGroups.map((headerGroup, i) => (
@@ -160,12 +179,13 @@ const DataTable: React.FC<TypedTableProps> = ({ columns, data }) => {
           </Box>
         </Box>
       </Flex>
-    </>
+    </SlideFade>
   )
 }
 
 interface HomeProps {
   shares: Array<object>
+  paginationOptions: PaginationOptions
 }
 
 const Home: NextPage<HomeProps> = (props) => {
@@ -191,22 +211,37 @@ const Home: NextPage<HomeProps> = (props) => {
 
   return (
     <Container maxW="container.xl" mb="5">
-      <DataTable columns={columns} data={data} />
+      <DataTable
+        columns={columns}
+        data={data}
+        paginationOptions={props.paginationOptions}
+      />
     </Container>
   )
 }
 
 export async function getStaticProps() {
+  const INITIAL_PAGE_SIZE = 20
   let data = null
+  let pageCount: number = 0
 
   if (prisma) {
-    const response = (await prisma.shares.findMany({
-      orderBy: {
-        created_at: 'desc',
-      },
-    })) as shares[]
+    const prismaPromises: [PrismaPromise<number>, PrismaPromise<shares[]>] = [
+      prisma.shares.count(),
+      prisma.shares.findMany({
+        take: 20,
+        orderBy: {
+          created_at: 'desc',
+        },
+      }),
+    ]
 
-    data = response.map((re) => {
+    const [pageCountResponse, sharesData] = await prisma.$transaction(
+      prismaPromises
+    )
+    pageCount = pageCountResponse
+
+    data = sharesData.map((re) => {
       const parsedDate =
         re.created_at && new Date(re.created_at).toLocaleDateString()
       const parsedTime =
@@ -224,7 +259,10 @@ export async function getStaticProps() {
 
   return {
     props: {
-      some: 'stuff',
+      paginationOptions: {
+        initialPageSize: INITIAL_PAGE_SIZE,
+        pageCount: data && Math.ceil(pageCount / INITIAL_PAGE_SIZE),
+      },
       shares: data,
     },
   }
