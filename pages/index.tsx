@@ -1,6 +1,8 @@
 import React from 'react'
 import prisma from 'lib/prisma'
 import type { NextPage } from 'next'
+import { PrismaPromise, shares } from '@prisma/client'
+import { usePagination, useTable, useSortBy, Column } from 'react-table'
 import {
   Container,
   Table,
@@ -16,7 +18,6 @@ import {
   Input,
   Select,
   Flex,
-  Spacer,
   InputGroup,
   InputLeftAddon,
   SlideFade,
@@ -29,10 +30,8 @@ import {
   TriangleDownIcon,
   TriangleUpIcon,
 } from '@chakra-ui/icons'
-import { Prisma, PrismaPromise, shares } from '@prisma/client'
-import { usePagination, useTable, useSortBy, Column } from 'react-table'
 
-type PaginationOptions = {
+interface PaginationOptions {
   initialPageSize: number
   pageCount: number
 }
@@ -147,7 +146,6 @@ const DataTable: React.FC<TypedTableProps> = ({
             />
           </ButtonGroup>
         </Box>
-        <Spacer />
         <Box display="flex">
           <InputGroup w="200px" size="sm">
             <InputLeftAddon>Go to page:</InputLeftAddon>
@@ -220,10 +218,14 @@ const Home: NextPage<HomeProps> = (props) => {
   )
 }
 
-export async function getStaticProps() {
-  const INITIAL_PAGE_SIZE = 20
+interface FetchResponse {
+  data: null | Array<object>
+  pageCount: number
+}
+
+const fetchData = async (): Promise<FetchResponse> => {
   let data = null
-  let pageCount: number = 0
+  let pageCount = 0
 
   if (prisma) {
     const prismaPromises: [PrismaPromise<number>, PrismaPromise<shares[]>] = [
@@ -256,6 +258,14 @@ export async function getStaticProps() {
       }
     })
   }
+
+  return { data, pageCount }
+}
+
+export async function getStaticProps() {
+  const INITIAL_PAGE_SIZE = 20
+
+  const { data, pageCount } = await fetchData()
 
   return {
     props: {
