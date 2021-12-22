@@ -2,17 +2,19 @@ import React, { useEffect } from 'react'
 import type { NextPage } from 'next'
 import { Container } from '@chakra-ui/react'
 import DataTable from '_components/DataTable'
-import { FetchSharesResponse } from './api/shares'
+import fetchSharesDB from '_lib/shares'
+import { shares } from '@prisma/client'
 
-const Home: NextPage = () => {
-  const [shares, setShares] = React.useState<FetchSharesResponse | null>(null)
-  useEffect(() => {
-    fetch('/api/shares')
-      .then((resp) => resp.json())
-      .then(setShares)
-  }, [])
+interface HomeProps {
+  data: shares[]
+  paginationOptions: {
+    pageCount: number
+    initialPageSize: number
+  }
+}
 
-  const data = React.useMemo(() => shares && shares.data, [shares])
+const Home: NextPage<HomeProps> = ({ data, paginationOptions }) => {
+  const shares = React.useMemo(() => data, [data])
 
   const columns = React.useMemo(
     () => [
@@ -38,14 +40,28 @@ const Home: NextPage = () => {
     <Container maxW="container.xl" mb="5">
       <DataTable
         columns={columns}
-        data={data}
+        data={shares}
         paginationOptions={{
-          pageCount: shares?.pageCount,
-          pageSize: shares?.initialPageSize,
+          pageCount: paginationOptions.pageCount,
+          pageSize: paginationOptions.initialPageSize,
         }}
       />
     </Container>
   )
+}
+
+export async function getStaticProps() {
+  const { data, pageCount, initialPageSize } = await fetchSharesDB()
+
+  return {
+    props: {
+      paginationOptions: {
+        initialPageSize,
+        pageCount: data && Math.ceil(pageCount / initialPageSize),
+      },
+      data,
+    },
+  }
 }
 
 export default Home

@@ -1,5 +1,4 @@
 import { PrismaPromise, shares } from '@prisma/client'
-import type { NextApiRequest, NextApiResponse } from 'next'
 import prisma from 'lib/prisma'
 
 export interface FetchSharesResponse {
@@ -8,10 +7,7 @@ export interface FetchSharesResponse {
   initialPageSize: number
 }
 
-export default async function fetchShares(
-  _: NextApiRequest,
-  res: NextApiResponse<FetchSharesResponse>
-) {
+export default async function fetchSharesDB() {
   let data = null
   let pageCount = 0
   const initialPageSize = 20
@@ -48,5 +44,5 @@ export default async function fetchShares(
     })
   }
 
-  res.status(200).json({ data, pageCount, initialPageSize })
+  return { data, pageCount, initialPageSize }
 }
