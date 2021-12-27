@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { usePagination, useTable, useSortBy, Column } from 'react-table'
 import {
   Table,
@@ -16,6 +17,7 @@ import {
   InputGroup,
   InputLeftAddon,
   SlideFade,
+  useQuery,
 } from '@chakra-ui/react'
 import {
   ArrowBackIcon,
@@ -25,55 +27,54 @@ import {
   TriangleDownIcon,
   TriangleUpIcon,
 } from '@chakra-ui/icons'
+import fetchSharesDB from '_lib/shares'
 
-interface PaginationOptions {
-  pageCount: number | undefined
-  pageSize: number | undefined
-}
+// interface PaginationOptions {
+//   pageCount: number | undefined
+//   pageSize: number | undefined
+// }
 
 interface TypedTableProps {
   columns: Array<Column<object>>
-  data: Array<object>
-  paginationOptions: PaginationOptions
+  initialPageSize: number
 }
 
-const DataTable: React.FC<TypedTableProps> = ({
-  columns,
-  data,
-  paginationOptions,
-}) => {
-  const {
-    gotoPage,
-    canPreviousPage,
-    canNextPage,
-    setPageSize,
-    getTableProps,
-    nextPage,
-    pageCount,
-    previousPage,
-    getTableBodyProps,
-    headerGroups,
-    page,
-    prepareRow,
-    state: { pageIndex, pageSize },
-  } = useTable(
-    {
-      columns,
-      data,
-      initialState: {
-        pageIndex: 0,
-        pageSize: paginationOptions.pageSize,
-      },
-      manualPagination: true,
-      pageCount: paginationOptions.pageCount,
-    },
-    useSortBy,
-    usePagination
-  )
+const DataTable: React.FC<TypedTableProps> = ({ columns, initialPageSize }) => {
+  const [page, setPage] = useState(initialPageSize)
+  // const { data } = useQuery(['shares', page], fetchSharesDB)
+  // const {
+  //   gotoPage,
+  //   canPreviousPage,
+  //   canNextPage,
+  //   setPageSize,
+  //   getTableProps,
+  //   nextPage,
+  //   pageCount,
+  //   previousPage,
+  //   getTableBodyProps,
+  //   headerGroups,
+  //   page,
+  //   prepareRow,
+  //   state: { pageIndex, pageSize },
+  // } = useTable(
+  //   {
+  //     columns,
+  //     data,
+  //     initialState: {
+  //       pageIndex: 0,
+  //       pageSize: paginationOptions.pageSize,
+  //     },
+  //     manualPagination: true,
+  //     pageCount: paginationOptions.pageCount,
+  //   },
+  //   useSortBy,
+  //   usePagination
+  // )
 
   return (
     <SlideFade in={true} offsetY="60px">
-      <Table {...getTableProps()} size="sm">
+      hello
+      {/* <Table {...getTableProps()} size="sm">
         <Thead>
           {headerGroups.map((headerGroup, i) => (
             <Tr {...headerGroup.getHeaderGroupProps()} key={`header-${i}`}>
@@ -171,7 +172,7 @@ const DataTable: React.FC<TypedTableProps> = ({
             </label>
           </Box>
         </Box>
-      </Flex>
+      </Flex> */}
     </SlideFade>
   )
 }

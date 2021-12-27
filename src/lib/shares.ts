@@ -4,13 +4,13 @@ import prisma from 'lib/prisma'
 export interface FetchSharesResponse {
   data: null | Array<object>
   pageCount: number
-  initialPageSize: number
 }
 
-export default async function fetchSharesDB() {
+export default async function fetchSharesDB(
+  initialPageSize: number
+): Promise<FetchSharesResponse> {
   let data = null
   let pageCount = 0
-  const initialPageSize = 20
 
   if (prisma) {
     const prismaPromises: [PrismaPromise<number>, PrismaPromise<shares[]>] = [
@@ -44,5 +44,5 @@ export default async function fetchSharesDB() {
     })
   }
 
-  return { data, pageCount, initialPageSize }
+  return { data, pageCount }
 }

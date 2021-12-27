@@ -1,20 +1,18 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import type { NextPage } from 'next'
 import { Container } from '@chakra-ui/react'
 import DataTable from '_components/DataTable'
 import fetchSharesDB from '_lib/shares'
 import { shares } from '@prisma/client'
+import { dehydrate, Hydrate, QueryClient } from 'react-query'
 
 interface HomeProps {
-  data: shares[]
-  paginationOptions: {
-    pageCount: number
-    initialPageSize: number
-  }
+  initialPageSize: number
+  dehydratedState: QueryClient
 }
 
-const Home: NextPage<HomeProps> = ({ data, paginationOptions }) => {
-  const shares = React.useMemo(() => data, [data])
+const Home: NextPage<HomeProps> = ({ initialPageSize, dehydratedState }) => {
+  // const shares = React.useMemo(() => data, [data])
 
   const columns = React.useMemo(
     () => [
@@ -34,32 +32,35 @@ const Home: NextPage<HomeProps> = ({ data, paginationOptions }) => {
     []
   )
 
-  if (!data) return null
-
   return (
     <Container maxW="container.xl" mb="5">
-      <DataTable
-        columns={columns}
-        data={shares}
-        paginationOptions={{
-          pageCount: paginationOptions.pageCount,
-          pageSize: paginationOptions.initialPageSize,
-        }}
-      />
+      <Hydrate state={dehydratedState}>
+        <DataTable
+          columns={columns}
+          initialPageSize={initialPageSize}
+          // data={shares}
+          // paginationOptions={{
+          //   pageCount: paginationOptions.pageCount,
+          //   pageSize: paginationOptions.initialPageSize,
+          // }}
+        />
+      </Hydrate>
     </Container>
   )
 }
 
 export async function getStaticProps() {
-  const { data, pageCount, initialPageSize } = await fetchSharesDB()
+  const initialPageSize = 20
+
+  const queryClient = new QueryClient()
+  await queryClient.prefetchQuery('shares', () =>
+    fetchSharesDB(initialPageSize)
+  )
 
   return {
     props: {
-      paginationOptions: {
-        initialPageSize,
-        pageCount: data && Math.ceil(pageCount / initialPageSize),
-      },
-      data,
+      initialPageSize,
+      dehydratedState: dehydrate(queryClient),
     },
   }
 }
