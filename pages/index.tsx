@@ -54,7 +54,7 @@ export async function getStaticProps() {
 
   const queryClient = new QueryClient()
   await queryClient.prefetchQuery('shares', () =>
-    fetchSharesDB(initialPageSize)
+    fetchSharesDB(initialPageSize, 1)
   )
 
   return {

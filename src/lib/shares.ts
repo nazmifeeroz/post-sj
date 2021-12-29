@@ -7,7 +7,8 @@ export interface FetchSharesResponse {
 }
 
 export default async function fetchSharesDB(
-  initialPageSize: number
+  initialPageSize: number,
+  page: number
 ): Promise<FetchSharesResponse> {
   let data = null
   let pageCount = 0
@@ -17,16 +18,15 @@ export default async function fetchSharesDB(
       prisma.shares.count(),
       prisma.shares.findMany({
         take: initialPageSize,
+        skip: initialPageSize * (page - 1),
         orderBy: {
           created_at: 'desc',
         },
       }),
     ]
 
-    const [pageCountResponse, sharesData] = await prisma.$transaction(
-      prismaPromises
-    )
-    pageCount = pageCountResponse
+    const [sharesCount, sharesData] = await prisma.$transaction(prismaPromises)
+    pageCount = sharesCount / initialPageSize
 
     data = sharesData.map((re) => {
       const parsedDate =

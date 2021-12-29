@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import fetchSharesDB from '_lib/shares'
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,7 +12,12 @@ export default async function handler(
   }
 
   try {
-    res.status(200).json({ success: true })
+    const { data, pageCount } = await fetchSharesDB(
+      +req.query.pageSize,
+      +req.query.page
+    )
+
+    res.status(200).json({ success: true, data, pageCount })
   } catch (err) {
     res.status(401).json({ error: { message: 'Your token has expired.' } })
   }

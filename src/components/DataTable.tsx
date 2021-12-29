@@ -18,17 +18,17 @@ import {
   InputGroup,
   InputLeftAddon,
   SlideFade,
-  useQuery,
 } from '@chakra-ui/react'
-import {
-  ArrowBackIcon,
-  ArrowForwardIcon,
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  TriangleDownIcon,
-  TriangleUpIcon,
-} from '@chakra-ui/icons'
-import fetchSharesDB from '_lib/shares'
+import { useQuery } from 'react-query'
+// import {
+//   ArrowBackIcon,
+//   ArrowForwardIcon,
+//   ArrowLeftIcon,
+//   ArrowRightIcon,
+//   TriangleDownIcon,
+//   TriangleUpIcon,
+// } from '@chakra-ui/icons'
+// import fetchSharesDB from '_lib/shares'
 
 // interface PaginationOptions {
 //   pageCount: number | undefined
@@ -41,11 +41,22 @@ interface TypedTableProps {
 }
 
 const DataTable: React.FC<TypedTableProps> = ({ columns, initialPageSize }) => {
-  const { data } = useQuery('shares', () => fetchSharesDB(initialPageSize))
+  const [pageSize, setPageSize] = useState(initialPageSize)
+  const [page, setPage] = useState(1)
 
-  const [page, setPage] = useState(initialPageSize)
+  const { data } = useQuery(
+    'shares',
+    () =>
+      fetch(`/api/shares?page=${page}&pageSize=${pageSize}`).then((res) =>
+        res.json()
+      ),
+    {
+      keepPreviousData: true,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    }
+  )
 
-  // const { data } = useQuery(['shares', page], fetchSharesDB)
   // const {
   //   gotoPage,
   //   canPreviousPage,
