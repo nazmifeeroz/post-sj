@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { usePagination, useTable, useSortBy, Column } from 'react-table'
+import fetchSharesDB from '_lib/shares'
 import {
   Table,
   Thead,
@@ -40,7 +41,10 @@ interface TypedTableProps {
 }
 
 const DataTable: React.FC<TypedTableProps> = ({ columns, initialPageSize }) => {
+  const { data } = useQuery('shares', () => fetchSharesDB(initialPageSize))
+
   const [page, setPage] = useState(initialPageSize)
+
   // const { data } = useQuery(['shares', page], fetchSharesDB)
   // const {
   //   gotoPage,
