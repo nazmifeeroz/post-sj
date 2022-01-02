@@ -31,7 +31,7 @@ const Home: NextPage = () => {
           <div>
             <Stack direction="row" spacing={4} align="center">
               <Button
-                colorScheme="teal"
+                colorScheme="orange"
                 variant="ghost"
                 onClick={() => router.push('/shares')}
               >
@@ -40,7 +40,7 @@ const Home: NextPage = () => {
               <Button colorScheme="teal" variant="ghost">
                 Pairs
               </Button>
-              <Button colorScheme="teal" variant="ghost">
+              <Button colorScheme="cyan" variant="ghost">
                 Help
               </Button>
             </Stack>
