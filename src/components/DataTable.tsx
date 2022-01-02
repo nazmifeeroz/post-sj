@@ -1,6 +1,5 @@
-import { useState } from 'react'
 import { usePagination, useTable, useSortBy, Column } from 'react-table'
-import fetchSharesDB from '_lib/shares'
+import { FetchSharesResponse } from '_lib/shares'
 import {
   Table,
   Thead,
@@ -19,77 +18,67 @@ import {
   InputLeftAddon,
   SlideFade,
 } from '@chakra-ui/react'
-import { useQuery } from 'react-query'
-// import {
-//   ArrowBackIcon,
-//   ArrowForwardIcon,
-//   ArrowLeftIcon,
-//   ArrowRightIcon,
-//   TriangleDownIcon,
-//   TriangleUpIcon,
-// } from '@chakra-ui/icons'
-// import fetchSharesDB from '_lib/shares'
-
-// interface PaginationOptions {
-//   pageCount: number | undefined
-//   pageSize: number | undefined
-// }
+import {
+  ArrowBackIcon,
+  ArrowForwardIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  TriangleDownIcon,
+  TriangleUpIcon,
+} from '@chakra-ui/icons'
+import { useRouter } from 'next/router'
 
 interface TypedTableProps {
   columns: Array<Column<object>>
-  initialPageSize: number
+  pageSize: number
+  tableData: FetchSharesResponse
+  tableName: string
 }
 
-const DataTable: React.FC<TypedTableProps> = ({ columns, initialPageSize }) => {
-  const [pageSize, setPageSize] = useState(initialPageSize)
-  const [page, setPage] = useState(1)
-
-  const { data } = useQuery(
-    'shares',
-    () =>
-      fetch(`/api/shares?page=${page}&pageSize=${pageSize}`).then((res) =>
-        res.json()
-      ),
+const DataTable: React.FC<TypedTableProps> = ({
+  columns,
+  pageSize,
+  tableData,
+  tableName,
+}) => {
+  const {
+    canPreviousPage,
+    canNextPage,
+    getTableProps,
+    pageCount,
+    getTableBodyProps,
+    headerGroups,
+    page,
+    prepareRow,
+  } = useTable(
     {
-      keepPreviousData: true,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-    }
+      columns,
+      data: tableData.data,
+      initialState: {
+        pageIndex: tableData.page - 1,
+        pageSize,
+      },
+      manualPagination: true,
+      pageCount: tableData.pageCount,
+    },
+    useSortBy,
+    usePagination
   )
 
-  // const {
-  //   gotoPage,
-  //   canPreviousPage,
-  //   canNextPage,
-  //   setPageSize,
-  //   getTableProps,
-  //   nextPage,
-  //   pageCount,
-  //   previousPage,
-  //   getTableBodyProps,
-  //   headerGroups,
-  //   page,
-  //   prepareRow,
-  //   state: { pageIndex, pageSize },
-  // } = useTable(
-  //   {
-  //     columns,
-  //     data,
-  //     initialState: {
-  //       pageIndex: 0,
-  //       pageSize: paginationOptions.pageSize,
-  //     },
-  //     manualPagination: true,
-  //     pageCount: paginationOptions.pageCount,
-  //   },
-  //   useSortBy,
-  //   usePagination
-  // )
+  const router = useRouter()
+
+  const gotoPage = (p: number) =>
+    router.push(`/${tableName}?page=${p + 1}&pageSize=${pageSize}`)
+  const nextPage = () =>
+    router.push(`/${tableName}?page=${tableData.page + 1}&pageSize=${pageSize}`)
+  const setPageSize = (s: number) =>
+    router.push(`/${tableName}?page=${tableData.page}&pageSize=${s}`)
+  const previousPage = () =>
+    router.push(`/${tableName}?page=${tableData.page - 1}&pageSize=${pageSize}`)
 
   return (
     <SlideFade in={true} offsetY="60px">
-      hello
-      {/* <Table {...getTableProps()} size="sm">
+      <Table {...getTableProps()} size="sm">
         <Thead>
           {headerGroups.map((headerGroup, i) => (
             <Tr {...headerGroup.getHeaderGroupProps()} key={`header-${i}`}>
@@ -162,7 +151,7 @@ const DataTable: React.FC<TypedTableProps> = ({ columns, initialPageSize }) => {
             <InputLeftAddon>Go to page:</InputLeftAddon>
             <Input
               type="number"
-              defaultValue={pageIndex + 1}
+              defaultValue={tableData.page}
               onChange={(e) => {
                 const page = e.target.value ? Number(e.target.value) - 1 : 0
                 gotoPage(page)
@@ -178,16 +167,16 @@ const DataTable: React.FC<TypedTableProps> = ({ columns, initialPageSize }) => {
                   setPageSize(Number(e.target.value))
                 }}
               >
-                {[10, 20, 30, 40, 50].map((pageSize) => (
-                  <option key={pageSize} value={pageSize}>
-                    Show {pageSize}
+                {[10, 20, 30, 40, 50].map((size) => (
+                  <option key={size} value={size}>
+                    Show {size}
                   </option>
                 ))}
               </Select>
             </label>
           </Box>
         </Box>
-      </Flex> */}
+      </Flex>
     </SlideFade>
   )
 }

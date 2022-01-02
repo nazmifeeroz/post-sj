@@ -2,23 +2,24 @@ import { PrismaPromise, shares } from '@prisma/client'
 import prisma from 'lib/prisma'
 
 export interface FetchSharesResponse {
-  data: null | Array<object>
+  data: shares[]
   pageCount: number
+  page: number
 }
 
 export default async function fetchSharesDB(
-  initialPageSize: number,
+  pageSize: number,
   page: number
 ): Promise<FetchSharesResponse> {
-  let data = null
+  let data: shares[] = []
   let pageCount = 0
 
   if (prisma) {
     const prismaPromises: [PrismaPromise<number>, PrismaPromise<shares[]>] = [
       prisma.shares.count(),
       prisma.shares.findMany({
-        take: initialPageSize,
-        skip: initialPageSize * (page - 1),
+        take: pageSize,
+        skip: pageSize * (page - 1),
         orderBy: {
           created_at: 'desc',
         },
@@ -26,23 +27,18 @@ export default async function fetchSharesDB(
     ]
 
     const [sharesCount, sharesData] = await prisma.$transaction(prismaPromises)
-    pageCount = sharesCount / initialPageSize
+    pageCount = Math.ceil(sharesCount / pageSize)
 
     data = sharesData.map((re) => {
-      const parsedDate =
-        re.created_at && new Date(re.created_at).toLocaleDateString()
-      const parsedTime =
-        re.created_at && new Date(re.created_at).toLocaleTimeString()
+      const parsedDate = new Date(re.created_at!).toLocaleDateString()
+      const parsedTime = new Date(re.created_at!).toLocaleTimeString()
 
       return {
         ...re,
-        created_at: `${parsedDate} ${parsedTime}`,
-        updated_at: re.updated_at && new Date(re.updated_at).toString(),
-        created_at_day:
-          re.created_at_day && new Date(re.created_at_day).toString(),
+        formatted_created_at: `${parsedDate} ${parsedTime}`,
       }
     })
   }
 
-  return { data, pageCount }
+  return { data, pageCount, page }
 }
