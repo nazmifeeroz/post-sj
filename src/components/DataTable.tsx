@@ -27,6 +27,7 @@ import {
   TriangleUpIcon,
 } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
+import Linkify from './Linkify'
 
 interface TypedTableProps {
   columns: Array<Column<object>>
@@ -109,7 +110,9 @@ const DataTable: React.FC<TypedTableProps> = ({
               <Tr {...row.getRowProps()} key={`row-${i}`}>
                 {row.cells.map((cell, cell_i) => (
                   <Td {...cell.getCellProps()} key={`cell=${cell_i}`}>
-                    {cell.render('Cell')}
+                    {cell.render(({ value }) => {
+                      return <Linkify textChild={value} />
+                    })}
                   </Td>
                 ))}
               </Tr>
