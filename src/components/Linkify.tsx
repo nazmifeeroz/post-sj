@@ -19,7 +19,12 @@ const Linkify = ({ textChild }: LinkifyProps) => {
       {newText.split('%s').map((t, i) => {
         if (newText.length > 0 && i === 1)
           return (
-            <Link color="teal.500" key={`${urlText}-%{i}`} href={urlText}>
+            <Link
+              color="teal.500"
+              key={`${urlText}-%{i}`}
+              href={urlText}
+              target="_blank"
+            >
               {urlText}
             </Link>
           )

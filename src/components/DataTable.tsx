@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { usePagination, useTable, useSortBy, Column } from 'react-table'
 import { FetchSharesResponse } from '_lib/shares'
 import {
@@ -17,6 +18,7 @@ import {
   InputGroup,
   InputLeftAddon,
   SlideFade,
+  Spinner,
 } from '@chakra-ui/react'
 import {
   ArrowBackIcon,
@@ -66,19 +68,48 @@ const DataTable: React.FC<TypedTableProps> = ({
     usePagination
   )
 
+  const [isRedirecting, setIsRedirecting] = useState<boolean>(false)
   const router = useRouter()
 
-  const gotoPage = (p: number) =>
+  useEffect(() => {
+    router.events.on('routeChangeComplete', () => setIsRedirecting(false))
+  }, [router])
+
+  const gotoPage = (p: number) => {
+    setIsRedirecting(true)
     router.push(`/${tableName}?page=${p + 1}&pageSize=${pageSize}`)
-  const nextPage = () =>
+  }
+  const nextPage = () => {
+    setIsRedirecting(true)
     router.push(`/${tableName}?page=${tableData.page + 1}&pageSize=${pageSize}`)
-  const setPageSize = (s: number) =>
+  }
+  const setPageSize = (s: number) => {
+    setIsRedirecting(true)
     router.push(`/${tableName}?page=${tableData.page}&pageSize=${s}`)
-  const previousPage = () =>
+  }
+  const previousPage = () => {
+    setIsRedirecting(true)
     router.push(`/${tableName}?page=${tableData.page - 1}&pageSize=${pageSize}`)
+  }
 
   return (
     <SlideFade in={true} offsetY="60px">
+      {isRedirecting && (
+        <Box
+          borderRadius="md"
+          boxShadow="md"
+          bg="teal"
+          color="white"
+          px={2}
+          h={6}
+          w={7}
+          position="fixed"
+          top="4"
+          right="4"
+        >
+          <Spinner size="xs" />
+        </Box>
+      )}
       <Table {...getTableProps()} size="sm">
         <Thead>
           {headerGroups.map((headerGroup, i) => (
