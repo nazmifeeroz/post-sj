@@ -141,6 +141,7 @@ const DataTable: React.FC<TypedTableProps> = ({
               <Tr {...row.getRowProps()} key={`row-${i}`}>
                 {row.cells.map((cell, cell_i) => (
                   <Td {...cell.getCellProps()} key={`cell=${cell_i}`}>
+                    {/* @ts-ignore */}
                     {cell.render(({ value }) => {
                       return <Linkify textChild={value} />
                     })}
