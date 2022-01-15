@@ -29,12 +29,15 @@ import {
 import { useRouter } from 'next/router'
 import Linkify from './Linkify'
 import { FetchPairsResponse } from '_lib/pairs'
+import { FetchHelpResponse } from '_lib/help'
+
+type TableNames = 'shares' | 'pairs' | 'help'
 
 interface TypedTableProps {
   columns: Array<Column<object>>
   pageSize: number
-  tableData: FetchSharesResponse | FetchPairsResponse
-  tableName: string
+  tableData: FetchSharesResponse | FetchPairsResponse | FetchHelpResponse
+  tableName: TableNames
 }
 
 const DataTable: React.FC<TypedTableProps> = ({
