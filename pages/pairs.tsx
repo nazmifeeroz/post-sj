@@ -33,7 +33,7 @@ const PairsPage: NextPage<PageProps> = ({ data, pageSize }) => {
 
   return (
     <PageTabs active="pairs">
-      <Container maxW="container.xl" mb="5">
+      <Container maxW="100vw" mb="5">
         <DataTable
           tableData={tableData}
           columns={columns}

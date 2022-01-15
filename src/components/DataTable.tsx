@@ -83,49 +83,56 @@ const DataTable: React.FC<TypedTableProps> = ({
 
   return (
     <SlideFade in={true} offsetY="60px">
-      <Table {...getTableProps()} size="sm">
-        <Thead>
-          {headerGroups.map((headerGroup, i) => (
-            <Tr {...headerGroup.getHeaderGroupProps()} key={`header-${i}`}>
-              {headerGroup.headers.map((column, col_i) => (
-                <Th
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  key={`col-${col_i}`}
-                >
-                  {column.render('Header')}
-                  <chakra.span pl="4" key={`span-${col_i}`}>
-                    {column.isSorted ? (
-                      column.isSortedDesc ? (
-                        <TriangleDownIcon aria-label="sorted descending" />
-                      ) : (
-                        <TriangleUpIcon aria-label="sorted ascending" />
-                      )
-                    ) : null}
-                  </chakra.span>
-                </Th>
-              ))}
-            </Tr>
-          ))}
-        </Thead>
-        <Tbody {...getTableBodyProps()}>
-          {page.map((row, i) => {
-            prepareRow(row)
-            return (
-              <Tr {...row.getRowProps()} key={`row-${i}`}>
-                {row.cells.map((cell, cell_i) => (
-                  <Td {...cell.getCellProps()} key={`cell=${cell_i}`}>
-                    {/* @ts-ignore */}
-                    {cell.render(({ value }) => {
-                      return <Linkify textChild={value} />
-                    })}
-                  </Td>
+      <Box maxW="100vw" overflow="scroll">
+        <Table {...getTableProps()}>
+          <Thead>
+            {headerGroups.map((headerGroup, i) => (
+              <Tr {...headerGroup.getHeaderGroupProps()} key={`header-${i}`}>
+                {headerGroup.headers.map((column, col_i) => (
+                  <Th
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    key={`col-${col_i}`}
+                  >
+                    {column.render('Header')}
+                    <chakra.span pl="4" key={`span-${col_i}`}>
+                      {column.isSorted ? (
+                        column.isSortedDesc ? (
+                          <TriangleDownIcon aria-label="sorted descending" />
+                        ) : (
+                          <TriangleUpIcon aria-label="sorted ascending" />
+                        )
+                      ) : null}
+                    </chakra.span>
+                  </Th>
                 ))}
               </Tr>
-            )
-          })}
-        </Tbody>
-      </Table>
-      <Flex justifyContent="space-between" mt="4">
+            ))}
+          </Thead>
+          <Tbody {...getTableBodyProps()}>
+            {page.map((row, i) => {
+              prepareRow(row)
+              return (
+                <Tr {...row.getRowProps()} key={`row-${i}`}>
+                  {row.cells.map((cell, cell_i) => (
+                    <Td {...cell.getCellProps()} key={`cell=${cell_i}`}>
+                      {/* @ts-ignore */}
+                      {cell.render(({ value }) => {
+                        return <Linkify textChild={value} />
+                      })}
+                    </Td>
+                  ))}
+                </Tr>
+              )
+            })}
+          </Tbody>
+        </Table>
+      </Box>
+      <Flex
+        direction={['column', 'row']}
+        alignItems="center"
+        justifyContent="space-between"
+        mt="4"
+      >
         <Box>
           <ButtonGroup size="sm">
             <IconButton
@@ -154,11 +161,11 @@ const DataTable: React.FC<TypedTableProps> = ({
             />
           </ButtonGroup>
         </Box>
-        <Box>
+        <Box display="flex">
           {tableData.page} / {tableData.pageCount}
         </Box>
         <Box display="flex">
-          <InputGroup w="200px" size="sm">
+          <InputGroup w="150px" size="sm">
             <InputLeftAddon>Go to page:</InputLeftAddon>
             <Input
               type="number"
@@ -169,7 +176,7 @@ const DataTable: React.FC<TypedTableProps> = ({
               }}
             />
           </InputGroup>
-          <Box ml="2" w="150px">
+          <Box ml="2" w="120px">
             <label>
               <Select
                 size="sm"
