@@ -1,16 +1,16 @@
 import { useMemo } from 'react'
 import { GetServerSideProps, NextPage } from 'next'
 import { Container } from '@chakra-ui/react'
-import fetchSharesDB, { FetchSharesResponse } from '_lib/shares'
+import fetchPairsDB, { FetchPairsResponse } from '_lib/pairs'
 import DataTable from '_components/DataTable'
 import PageTabs from '_components/PageTabs'
 
 type PageProps = {
   pageSize: number
-  data: FetchSharesResponse
+  data: FetchPairsResponse
 }
 
-const SharesPage: NextPage<PageProps> = ({ data, pageSize }) => {
+const PairsPage: NextPage<PageProps> = ({ data, pageSize }) => {
   const columns = useMemo(
     () => [
       {
@@ -18,12 +18,8 @@ const SharesPage: NextPage<PageProps> = ({ data, pageSize }) => {
         accessor: 'id',
       },
       {
-        Header: 'Contributor',
-        accessor: 'contributor',
-      },
-      {
-        Header: 'Sharing',
-        accessor: 'sharing',
+        Header: 'Project',
+        accessor: 'project',
       },
       {
         Header: 'Created At',
@@ -36,13 +32,13 @@ const SharesPage: NextPage<PageProps> = ({ data, pageSize }) => {
   const tableData = useMemo(() => data, [data])
 
   return (
-    <PageTabs active="shares">
+    <PageTabs active="pairs">
       <Container maxW="container.xl" mb="5">
         <DataTable
           tableData={tableData}
           columns={columns}
           pageSize={pageSize}
-          tableName="shares"
+          tableName="pairs"
         />
       </Container>
     </PageTabs>
@@ -54,12 +50,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const pageSize = context.query.pageSize || 20
 
-  const data = await fetchSharesDB(+pageSize, +page).then(
+  const data = await fetchPairsDB(+pageSize, +page).then(
     ({ data, ...rest }) => ({
       ...rest,
-      data: data.map(
-        ({ created_at, updated_at, created_at_day, ...rest }) => rest
-      ),
+      data: data.map(({ created_at, updated_at, ...rest }) => rest),
     })
   )
 
@@ -71,4 +65,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 }
 
-export default SharesPage
+export default PairsPage

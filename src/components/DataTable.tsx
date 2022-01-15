@@ -30,11 +30,12 @@ import {
 } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 import Linkify from './Linkify'
+import { FetchPairsResponse } from '_lib/pairs'
 
 interface TypedTableProps {
   columns: Array<Column<object>>
   pageSize: number
-  tableData: FetchSharesResponse
+  tableData: FetchSharesResponse | FetchPairsResponse
   tableName: string
 }
 
@@ -44,6 +45,7 @@ const DataTable: React.FC<TypedTableProps> = ({
   tableData,
   tableName,
 }) => {
+  console.log('tableData', tableData)
   const {
     canPreviousPage,
     canNextPage,
@@ -104,7 +106,7 @@ const DataTable: React.FC<TypedTableProps> = ({
           h={6}
           w={7}
           position="fixed"
-          top="4"
+          top="2"
           right="4"
         >
           <Spinner size="xs" />
@@ -180,6 +182,9 @@ const DataTable: React.FC<TypedTableProps> = ({
               icon={<ArrowRightIcon />}
             />
           </ButtonGroup>
+        </Box>
+        <Box>
+          {tableData.page} / {tableData.pageCount}
         </Box>
         <Box display="flex">
           <InputGroup w="200px" size="sm">
