@@ -23,7 +23,7 @@ const PageTabs: FC<PageTabsProps> = ({ active, children }) => {
   }
 
   return (
-    <Tabs index={index} onChange={onTabsChange}>
+    <Tabs index={index} onChange={onTabsChange} id="1">
       <TabList>
         <Tab>Shares</Tab>
         <Tab>Pairs</Tab>
