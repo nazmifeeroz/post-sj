@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { usePagination, useTable, useSortBy, Column } from 'react-table'
 import { FetchSharesResponse } from '_lib/shares'
 import {
@@ -17,6 +18,7 @@ import {
   InputGroup,
   InputLeftAddon,
   SlideFade,
+  InputRightElement,
 } from '@chakra-ui/react'
 import {
   ArrowBackIcon,
@@ -71,6 +73,13 @@ const DataTable: React.FC<TypedTableProps> = ({
   )
 
   const router = useRouter()
+  const pageRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    router.events.on('routeChangeComplete', () => {
+      if (pageRef.current) pageRef.current.value = String(tableData.page)
+    })
+  }, [pageRef, router, tableData])
 
   const gotoPage = (p: number) =>
     router.push(`/${tableName}?page=${p + 1}&pageSize=${pageSize}`)
@@ -83,6 +92,76 @@ const DataTable: React.FC<TypedTableProps> = ({
 
   return (
     <SlideFade in={true} offsetY="60px">
+      <Flex
+        direction={['column', 'row']}
+        alignItems="center"
+        justifyContent="space-between"
+        mt="4"
+        mb="4"
+      >
+        <Box>
+          <ButtonGroup size="sm" mb={['4', '0']}>
+            <IconButton
+              onClick={() => gotoPage(0)}
+              disabled={!canPreviousPage}
+              aria-label="first page"
+              icon={<ArrowLeftIcon />}
+            />
+            <IconButton
+              onClick={() => previousPage()}
+              disabled={!canPreviousPage}
+              aria-label="previous"
+              icon={<ArrowBackIcon />}
+            />
+            <IconButton
+              onClick={() => nextPage()}
+              disabled={!canNextPage}
+              aria-label="next"
+              icon={<ArrowForwardIcon />}
+            />
+            <IconButton
+              onClick={() => gotoPage(pageCount - 1)}
+              disabled={!canNextPage}
+              aria-label="last page"
+              icon={<ArrowRightIcon />}
+            />
+          </ButtonGroup>
+        </Box>
+        <Box display="flex">
+          <InputGroup w="200px" size="sm">
+            <InputLeftAddon>Go to page:</InputLeftAddon>
+            <Input
+              type="number"
+              defaultValue={tableData.page}
+              ref={pageRef}
+              onChange={(e) => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0
+                gotoPage(page)
+              }}
+            />
+            <InputRightElement width="4rem">
+              of {tableData.pageCount}{' '}
+            </InputRightElement>
+          </InputGroup>
+          <Box ml="2" w="120px">
+            <label>
+              <Select
+                size="sm"
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value))
+                }}
+              >
+                {[10, 20, 30, 40, 50].map((size) => (
+                  <option key={size} value={size}>
+                    Show {size}
+                  </option>
+                ))}
+              </Select>
+            </label>
+          </Box>
+        </Box>
+      </Flex>
       <Box maxW="100vw" overflow="scroll">
         <Table {...getTableProps()}>
           <Thead>
@@ -127,74 +206,6 @@ const DataTable: React.FC<TypedTableProps> = ({
           </Tbody>
         </Table>
       </Box>
-      <Flex
-        direction={['column', 'row']}
-        alignItems="center"
-        justifyContent="space-between"
-        mt="4"
-      >
-        <Box>
-          <ButtonGroup size="sm">
-            <IconButton
-              onClick={() => gotoPage(0)}
-              disabled={!canPreviousPage}
-              aria-label="first page"
-              icon={<ArrowLeftIcon />}
-            />
-            <IconButton
-              onClick={() => previousPage()}
-              disabled={!canPreviousPage}
-              aria-label="previous"
-              icon={<ArrowBackIcon />}
-            />
-            <IconButton
-              onClick={() => nextPage()}
-              disabled={!canNextPage}
-              aria-label="next"
-              icon={<ArrowForwardIcon />}
-            />
-            <IconButton
-              onClick={() => gotoPage(pageCount - 1)}
-              disabled={!canNextPage}
-              aria-label="last page"
-              icon={<ArrowRightIcon />}
-            />
-          </ButtonGroup>
-        </Box>
-        <Box display="flex">
-          {tableData.page} / {tableData.pageCount}
-        </Box>
-        <Box display="flex">
-          <InputGroup w="150px" size="sm">
-            <InputLeftAddon>Go to page:</InputLeftAddon>
-            <Input
-              type="number"
-              defaultValue={tableData.page}
-              onChange={(e) => {
-                const page = e.target.value ? Number(e.target.value) - 1 : 0
-                gotoPage(page)
-              }}
-            />
-          </InputGroup>
-          <Box ml="2" w="120px">
-            <label>
-              <Select
-                size="sm"
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value))
-                }}
-              >
-                {[10, 20, 30, 40, 50].map((size) => (
-                  <option key={size} value={size}>
-                    Show {size}
-                  </option>
-                ))}
-              </Select>
-            </label>
-          </Box>
-        </Box>
-      </Flex>
     </SlideFade>
   )
 }
