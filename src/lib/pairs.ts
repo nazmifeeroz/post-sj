@@ -9,27 +9,47 @@ export interface FetchPairsResponse {
 
 export default async function fetchPairsDB(
   pageSize: number,
-  page: number
+  page: number,
+  containsQuery?: string | null
 ): Promise<FetchPairsResponse> {
   let data: pairs[] = []
   let pageCount = 0
 
   if (prisma) {
     const prismaPromises: [PrismaPromise<number>, PrismaPromise<pairs[]>] = [
-      prisma.pairs.count(),
+      prisma.pairs.count(
+        containsQuery
+          ? {
+              where: {
+                project: {
+                  contains: containsQuery,
+                  mode: 'insensitive',
+                },
+              },
+            }
+          : undefined
+      ),
       prisma.pairs.findMany({
         take: pageSize,
         skip: pageSize * (page - 1),
         orderBy: {
           created_at: 'desc',
         },
+        ...(containsQuery && {
+          where: {
+            project: {
+              contains: containsQuery,
+              mode: 'insensitive',
+            },
+          },
+        }),
       }),
     ]
 
-    const [sharesCount, sharesData] = await prisma.$transaction(prismaPromises)
-    pageCount = Math.ceil(sharesCount / pageSize)
+    const [pairsCount, pairsData] = await prisma.$transaction(prismaPromises)
+    pageCount = Math.ceil(pairsCount / pageSize)
 
-    data = sharesData.map((re) => {
+    data = pairsData.map((re) => {
       const parsedDate = new Date(re.created_at!).toLocaleDateString()
       const parsedTime = new Date(re.created_at!).toLocaleTimeString()
 

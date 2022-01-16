@@ -9,7 +9,8 @@ export interface FetchHelpResponse {
 
 export default async function fetchHelpDB(
   pageSize: number,
-  page: number
+  page: number,
+  containsQuery?: string | null
 ): Promise<FetchHelpResponse> {
   let data: assistance[] = []
   let pageCount = 0
@@ -17,20 +18,39 @@ export default async function fetchHelpDB(
   if (prisma) {
     const prismaPromises: [PrismaPromise<number>, PrismaPromise<assistance[]>] =
       [
-        prisma.assistance.count(),
+        prisma.assistance.count(
+          containsQuery
+            ? {
+                where: {
+                  assist: {
+                    contains: containsQuery,
+                    mode: 'insensitive',
+                  },
+                },
+              }
+            : undefined
+        ),
         prisma.assistance.findMany({
           take: pageSize,
           skip: pageSize * (page - 1),
           orderBy: {
             created_at: 'desc',
           },
+          ...(containsQuery && {
+            where: {
+              assist: {
+                contains: containsQuery,
+                mode: 'insensitive',
+              },
+            },
+          }),
         }),
       ]
 
-    const [sharesCount, sharesData] = await prisma.$transaction(prismaPromises)
-    pageCount = Math.ceil(sharesCount / pageSize)
+    const [helpCount, helpData] = await prisma.$transaction(prismaPromises)
+    pageCount = Math.ceil(helpCount / pageSize)
 
-    data = sharesData.map((re) => {
+    data = helpData.map((re) => {
       const parsedDate = new Date(re.created_at!).toLocaleDateString()
       const parsedTime = new Date(re.created_at!).toLocaleTimeString()
 
