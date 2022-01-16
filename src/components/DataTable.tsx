@@ -127,6 +127,9 @@ const DataTable: React.FC<TypedTableProps> = ({
             />
           </ButtonGroup>
         </Box>
+        <Box w="100%" mx="5">
+          <Input placeholder="Search" mb={['4', '0']} variant="filled" />
+        </Box>
         <Box display="flex">
           <InputGroup w="200px" size="sm">
             <InputLeftAddon>Go to page:</InputLeftAddon>
