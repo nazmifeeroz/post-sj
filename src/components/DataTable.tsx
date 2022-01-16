@@ -91,7 +91,7 @@ const DataTable: React.FC<TypedTableProps> = ({
     router.push(`/${tableName}?page=${tableData.page - 1}&pageSize=${pageSize}`)
 
   return (
-    <SlideFade in={true} offsetY="60px">
+    <>
       <Flex
         direction={['column', 'row']}
         alignItems="center"
@@ -162,51 +162,53 @@ const DataTable: React.FC<TypedTableProps> = ({
           </Box>
         </Box>
       </Flex>
-      <Box maxW="100vw" overflow="scroll">
-        <Table {...getTableProps()}>
-          <Thead>
-            {headerGroups.map((headerGroup, i) => (
-              <Tr {...headerGroup.getHeaderGroupProps()} key={`header-${i}`}>
-                {headerGroup.headers.map((column, col_i) => (
-                  <Th
-                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                    key={`col-${col_i}`}
-                  >
-                    {column.render('Header')}
-                    <chakra.span pl="4" key={`span-${col_i}`}>
-                      {column.isSorted ? (
-                        column.isSortedDesc ? (
-                          <TriangleDownIcon aria-label="sorted descending" />
-                        ) : (
-                          <TriangleUpIcon aria-label="sorted ascending" />
-                        )
-                      ) : null}
-                    </chakra.span>
-                  </Th>
-                ))}
-              </Tr>
-            ))}
-          </Thead>
-          <Tbody {...getTableBodyProps()}>
-            {page.map((row, i) => {
-              prepareRow(row)
-              return (
-                <Tr {...row.getRowProps()} key={`row-${i}`}>
-                  {row.cells.map((cell, cell_i) => (
-                    <Td {...cell.getCellProps()} key={`cell=${cell_i}`}>
-                      {/* @ts-ignore */}
-                      {cell.render(({ value }) => {
-                        return <Linkify textChild={value} />
-                      })}
-                    </Td>
+      <SlideFade in={true} offsetY="60px">
+        <Box maxW="100vw" overflow="scroll">
+          <Table {...getTableProps()}>
+            <Thead>
+              {headerGroups.map((headerGroup, i) => (
+                <Tr {...headerGroup.getHeaderGroupProps()} key={`header-${i}`}>
+                  {headerGroup.headers.map((column, col_i) => (
+                    <Th
+                      {...column.getHeaderProps(column.getSortByToggleProps())}
+                      key={`col-${col_i}`}
+                    >
+                      {column.render('Header')}
+                      <chakra.span pl="4" key={`span-${col_i}`}>
+                        {column.isSorted ? (
+                          column.isSortedDesc ? (
+                            <TriangleDownIcon aria-label="sorted descending" />
+                          ) : (
+                            <TriangleUpIcon aria-label="sorted ascending" />
+                          )
+                        ) : null}
+                      </chakra.span>
+                    </Th>
                   ))}
                 </Tr>
-              )
-            })}
-          </Tbody>
-        </Table>
-      </Box>
-    </SlideFade>
+              ))}
+            </Thead>
+            <Tbody {...getTableBodyProps()}>
+              {page.map((row, i) => {
+                prepareRow(row)
+                return (
+                  <Tr {...row.getRowProps()} key={`row-${i}`}>
+                    {row.cells.map((cell, cell_i) => (
+                      <Td {...cell.getCellProps()} key={`cell=${cell_i}`}>
+                        {/* @ts-ignore */}
+                        {cell.render(({ value }) => {
+                          return <Linkify textChild={value} />
+                        })}
+                      </Td>
+                    ))}
+                  </Tr>
+                )
+              })}
+            </Tbody>
+          </Table>
+        </Box>
+      </SlideFade>
+    </>
   )
 }
 
