@@ -1,5 +1,5 @@
 import { PrismaPromise, pairs } from '@prisma/client'
-import prisma from 'lib/prisma'
+import prisma from 'adaptors/prisma'
 
 export interface FetchPairsResponse {
   data: pairs[]

@@ -1,5 +1,5 @@
 import { PrismaPromise, shares } from '@prisma/client'
-import prisma from 'lib/prisma'
+import prisma from 'adaptors/prisma'
 
 export interface FetchSharesResponse {
   data: shares[]
