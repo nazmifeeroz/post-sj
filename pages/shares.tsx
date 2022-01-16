@@ -8,9 +8,10 @@ import PageTabs from '_components/PageTabs'
 type PageProps = {
   pageSize: number
   data: FetchSharesResponse
+  containsQuery: string | null
 }
 
-const SharesPage: NextPage<PageProps> = ({ data, pageSize }) => {
+const SharesPage: NextPage<PageProps> = ({ containsQuery, data, pageSize }) => {
   const columns = useMemo(
     () => [
       {
@@ -41,6 +42,7 @@ const SharesPage: NextPage<PageProps> = ({ data, pageSize }) => {
         <DataTable
           tableData={tableData}
           columns={columns}
+          containsQuery={containsQuery}
           pageSize={pageSize}
           tableName="shares"
         />
@@ -54,7 +56,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const pageSize = context.query.pageSize || 20
 
-  const data = await fetchSharesDB(+pageSize, +page).then(
+  const containsQuery = context.query.containsQuery
+    ? `${context.query.containsQuery}`
+    : null
+
+  const data = await fetchSharesDB(+pageSize, +page, containsQuery).then(
     ({ data, ...rest }) => ({
       ...rest,
       data: data.map(
@@ -67,6 +73,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     props: {
       data,
       pageSize,
+      containsQuery,
     },
   }
 }

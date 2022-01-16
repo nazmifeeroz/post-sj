@@ -9,20 +9,60 @@ export interface FetchSharesResponse {
 
 export default async function fetchSharesDB(
   pageSize: number,
-  page: number
+  page: number,
+  containsQuery?: string | null
 ): Promise<FetchSharesResponse> {
   let data: shares[] = []
   let pageCount = 0
 
   if (prisma) {
     const prismaPromises: [PrismaPromise<number>, PrismaPromise<shares[]>] = [
-      prisma.shares.count(),
+      prisma.shares.count(
+        containsQuery
+          ? {
+              where: {
+                OR: [
+                  {
+                    contributor: {
+                      contains: containsQuery,
+                      mode: 'insensitive',
+                    },
+                  },
+                  {
+                    sharing: {
+                      contains: containsQuery,
+                      mode: 'insensitive',
+                    },
+                  },
+                ],
+              },
+            }
+          : undefined
+      ),
       prisma.shares.findMany({
         take: pageSize,
         skip: pageSize * (page - 1),
         orderBy: {
           created_at: 'desc',
         },
+        ...(containsQuery && {
+          where: {
+            OR: [
+              {
+                contributor: {
+                  contains: containsQuery,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                sharing: {
+                  contains: containsQuery,
+                  mode: 'insensitive',
+                },
+              },
+            ],
+          },
+        }),
       }),
     ]
 

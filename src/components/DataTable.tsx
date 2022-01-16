@@ -40,6 +40,26 @@ interface TypedTableProps {
   pageSize: number
   tableData: FetchSharesResponse | FetchPairsResponse | FetchHelpResponse
   tableName: TableNames
+  containsQuery: string | null
+}
+
+function debounce<T extends (...args: any[]) => any>(
+  ms: number,
+  callback: T
+): (...args: Parameters<T>) => Promise<ReturnType<T>> {
+  let timer: NodeJS.Timeout | undefined
+
+  return (...args: Parameters<T>) => {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    return new Promise<ReturnType<T>>((resolve) => {
+      timer = setTimeout(() => {
+        const returnValue = callback(...args) as ReturnType<T>
+        resolve(returnValue)
+      }, ms)
+    })
+  }
 }
 
 const DataTable: React.FC<TypedTableProps> = ({
@@ -47,6 +67,7 @@ const DataTable: React.FC<TypedTableProps> = ({
   pageSize,
   tableData,
   tableName,
+  containsQuery,
 }) => {
   const {
     canPreviousPage,
@@ -82,13 +103,34 @@ const DataTable: React.FC<TypedTableProps> = ({
   }, [pageRef, router, tableData])
 
   const gotoPage = (p: number) =>
-    router.push(`/${tableName}?page=${p + 1}&pageSize=${pageSize}`)
+    router.push(
+      `/${tableName}?page=${p + 1}&pageSize=${pageSize}${
+        containsQuery ? `&containsQuery=${containsQuery}` : ''
+      }`
+    )
   const nextPage = () =>
-    router.push(`/${tableName}?page=${tableData.page + 1}&pageSize=${pageSize}`)
+    router.push(
+      `/${tableName}?page=${tableData.page + 1}&pageSize=${pageSize}${
+        containsQuery ? `&containsQuery=${containsQuery}` : ''
+      }`
+    )
   const setPageSize = (s: number) =>
-    router.push(`/${tableName}?page=${tableData.page}&pageSize=${s}`)
+    router.push(
+      `/${tableName}?page=${tableData.page}&pageSize=${s}${
+        containsQuery ? `&containsQuery=${containsQuery}` : ''
+      }`
+    )
   const previousPage = () =>
-    router.push(`/${tableName}?page=${tableData.page - 1}&pageSize=${pageSize}`)
+    router.push(
+      `/${tableName}?page=${tableData.page - 1}&pageSize=${pageSize}${
+        containsQuery ? `&containsQuery=${containsQuery}` : ''
+      }`
+    )
+  const onSearch = (query: string) => {
+    router.push(
+      `/${tableName}?page=1&pageSize=${pageSize}&containsQuery=${query}`
+    )
+  }
 
   return (
     <>
@@ -128,7 +170,12 @@ const DataTable: React.FC<TypedTableProps> = ({
           </ButtonGroup>
         </Box>
         <Box w="100%" mx="5">
-          <Input placeholder="Search" mb={['4', '0']} variant="filled" />
+          <Input
+            onChange={debounce(1000, (e) => onSearch(e.target.value))}
+            placeholder="Search"
+            mb={['4', '0']}
+            variant="filled"
+          />
         </Box>
         <Box display="flex">
           <InputGroup w="200px" size="sm">
@@ -137,13 +184,18 @@ const DataTable: React.FC<TypedTableProps> = ({
               type="number"
               defaultValue={tableData.page}
               ref={pageRef}
-              onChange={(e) => {
+              onChange={debounce(1000, (e) => {
+                if (
+                  Number(e.target.value) > tableData.pageCount ||
+                  Number(e.target.value) === 0
+                )
+                  return
                 const page = e.target.value ? Number(e.target.value) - 1 : 0
-                gotoPage(page)
-              }}
+                return gotoPage(page)
+              })}
             />
             <InputRightElement width="4rem">
-              of {tableData.pageCount}{' '}
+              of {tableData.pageCount === 0 ? 1 : tableData.pageCount}{' '}
             </InputRightElement>
           </InputGroup>
           <Box ml="2" w="120px">
