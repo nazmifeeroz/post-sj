@@ -46,7 +46,7 @@ export default async function fetchPairsDB(
       }),
     ]
 
-    const [pairsCount, pairsData] = await prisma.$transaction(prismaPromises)
+    const [pairsCount, pairsData] = await Promise.all(prismaPromises)
     pageCount = Math.ceil(pairsCount / pageSize)
 
     data = pairsData.map((re) => {

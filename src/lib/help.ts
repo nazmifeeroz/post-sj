@@ -47,7 +47,7 @@ export default async function fetchHelpDB(
         }),
       ]
 
-    const [helpCount, helpData] = await prisma.$transaction(prismaPromises)
+    const [helpCount, helpData] = await Promise.all(prismaPromises)
     pageCount = Math.ceil(helpCount / pageSize)
 
     data = helpData.map((re) => {

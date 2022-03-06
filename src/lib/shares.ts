@@ -66,7 +66,7 @@ export default async function fetchSharesDB(
       }),
     ]
 
-    const [sharesCount, sharesData] = await prisma.$transaction(prismaPromises)
+    const [sharesCount, sharesData] = await Promise.all(prismaPromises)
     pageCount = Math.ceil(sharesCount / pageSize)
 
     data = sharesData.map((re) => {
