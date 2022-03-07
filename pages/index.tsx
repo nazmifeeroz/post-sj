@@ -1,7 +1,16 @@
 import { useEffect } from 'react'
 import type { NextPage } from 'next'
 import { NextRouter, useRouter } from 'next/router'
-import { Button, Center, Container, Flex, Stack, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Center,
+  Container,
+  Flex,
+  Image,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import { assign, createMachine } from 'xstate'
 import { useMachine } from '@xstate/react'
 
@@ -73,16 +82,11 @@ const Home: NextPage = () => {
     <Container maxW="container.xl" mb="5">
       <Center h="100vh">
         <Flex direction="column" align="center">
-          <div>
-            <Text
-              bgGradient="linear(to-r, teal.500, green.500)"
-              bgClip="text"
-              fontSize="6xl"
-              fontWeight="extrabold"
-            >
-              Alumni
-            </Text>
-          </div>
+          <Image
+            width="300px"
+            src="/Silicon-Jungles-Logo.svg"
+            alt="Silicon Jungles"
+          />
           <div>
             <Stack direction="row" spacing={4} align="center">
               <Button

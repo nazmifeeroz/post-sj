@@ -12,6 +12,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta name="description" content="Silicon Jungles Alumni" />
+          <title>Silicon Jungles Alumni</title>
         </Head>
         <LoadingIndicator />
         <Component {...pageProps} />
