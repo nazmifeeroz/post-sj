@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import { redirect } from 'next/dist/server/api-utils'
 
 export default NextAuth({
   providers: [
@@ -23,4 +24,9 @@ export default NextAuth({
       },
     }),
   ],
+  callbacks: {
+    async redirect({ baseUrl }) {
+      return baseUrl
+    },
+  },
 })
